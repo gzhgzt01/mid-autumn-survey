@@ -250,9 +250,53 @@
     margin-top: -6px;
     margin-bottom: 10px;
   }
+  /* 多选超限警告 */
+  .multi-warn {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-left: 36px;
+    margin-top: -6px;
+    margin-bottom: 10px;
+    display: none;
+  }
+  .multi-warn.show { display: block; }
+  /* 提交按钮加载态 */
+  .btn-submit.loading {
+    opacity: 0.7;
+    cursor: wait;
+    pointer-events: none;
+  }
+  .btn-submit.loading::after {
+    content: ' 提交中...';
+  }
+  /* 页面初始加载遮罩 */
+  .page-loading {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+  }
+  .page-loading.fade-out { opacity: 0; pointer-events: none; }
+  .loading-text {
+    color: #fff;
+    font-size: 16px;
+    letter-spacing: 2px;
+  }
+  /* 提交失败页 */
+  .result-page.error .result-icon { font-size: 64px; }
+  .result-page.error .result-title { color: #e74c3c; }
 </style>
 </head>
 <body>
+<!-- 页面加载遮罩：防止白屏/404闪烁 -->
+<div class="page-loading" id="pageLoading">
+  <div class="loading-text">加载中...</div>
+</div>
 <div class="container">
   <!-- 礼品盒图片 -->
   <div class="hero-image">
@@ -359,6 +403,7 @@
           <li><label class="option-label"><input type="checkbox" name="q9" value="月圆人团圆，情系某大园" data-group="q9" /> 月圆人团圆，情系某大园</label></li>
         </ul>
         <div class="multi-hint">最多可选 3 句</div>
+        <div class="multi-warn" id="q9Warn">⚠ 已选满 3 项，如需更换请先取消一项</div>
         <textarea name="q9_other" placeholder="或者写下你想说的话..." style="margin-top:10px;"></textarea>
       </div>
 
@@ -424,6 +469,10 @@
     $$('.question').forEach(q => q.classList.remove('active'));
     var qn = $('.question[data-q="' + n + '"]');
     if (qn) qn.classList.add('active');
+
+    // 恢复当前题目的选项高亮状态（翻页后保持选中样式）
+    restoreSelectionState(n);
+
     updateProgress();
 
     // 按钮状态
@@ -442,9 +491,34 @@
     if (n > total) {
       $('#btnRow').style.display = 'none';
     }
+
+    // 更新多选警告状态
+    if (n === 9) {
+      var count = 0;
+      $$('input[data-group="q9"]').forEach(c => { if(c.checked) count++; });
+      var warn = document.getElementById('q9Warn');
+      if (warn) {
+        if (count >= 3) warn.classList.add('show');
+        else warn.classList.remove('show');
+      }
+    }
   }
 
-  // 选项点击高亮
+  // 恢复某道题的选项高亮状态
+  function restoreSelectionState(n) {
+    var qn = $('.question[data-q="' + n + '"]');
+    if (!qn) return;
+    qn.querySelectorAll('.option-label').forEach(label => {
+      var inp = label.querySelector('input');
+      if (inp && inp.checked) {
+        label.classList.add('selected');
+      } else {
+        label.classList.remove('selected');
+      }
+    });
+  }
+
+  // 选项点击高亮 + 多选超限即时提示
   $$('.option-label').forEach(label => {
     label.addEventListener('click', function() {
       var inp = this.querySelector('input');
@@ -452,7 +526,33 @@
         this.parentElement.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
         this.classList.add('selected');
       } else {
+        // 多选：先检测是否会超限
+        var group = inp.dataset.group;
+        if (group && !inp.checked) {
+          // 即将勾选时检查数量
+          var currentCount = 0;
+          $$('input[data-group="'+group+'"]').forEach(c => { if(c.checked) currentCount++; });
+          var maxLimit = (group === 'q9') ? 3 : 99;
+          if (currentCount >= maxLimit) {
+            // 超限了，阻止勾选并显示警告
+            var warnEl = document.getElementById(group + 'Warn');
+            if (warnEl) warnEl.classList.add('show');
+            return;
+          }
+        }
         this.classList.toggle('selected');
+
+        // 更新警告状态
+        var group2 = inp.dataset.group;
+        if (group2 === 'q9') {
+          var count = 0;
+          $$('input[data-group="q9"]').forEach(c => { if(c.checked) count++; });
+          var warn = document.getElementById('q9Warn');
+          if (warn) {
+            if (count >= 3) warn.classList.add('show');
+            else warn.classList.remove('show');
+          }
+        }
       }
     });
   });
@@ -561,6 +661,12 @@
     var bodyText = collectData();
     var now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
 
+    // 显示提交中状态
+    var btn = $('#nextBtn');
+    btn.classList.add('loading');
+    btn.textContent = '提交中...';
+    btn.style.pointerEvents = 'none';
+
     // 使用 EmailJS REST API 发送邮件（无需加载任何外部JS库）
     // 纯 fetch 调用，国内可直接访问 api.emailjs.com
     var data = {
@@ -579,32 +685,64 @@
       body: JSON.stringify(data)
     }).then(function(res) {
       if (res.ok) {
-        showResult();
+        showResult(true);
       } else {
-        // 邮件可能发送失败，但仍显示成功（数据已记录在页面中）
-        showResult();
+        showResult(false);
       }
     }).catch(function(err) {
       console.log('Email error:', err);
-      showResult();
+      showResult(false);
     });
   }
 
-  function showResult() {
+  function showResult(success) {
     $$('.question').forEach(q => q.style.display = 'none');
     $('#btnRow').style.display = 'none';
-    $('#resultPage').classList.add('active');
+    var resultPage = $('#resultPage');
+    resultPage.classList.add('active');
     $('.subtitle').style.display = 'none';
-    $('h1').textContent = '提交成功！';
-    $('h1').style.color = '#27ae60';
+
+    if (success) {
+      $('h1').textContent = '提交成功！';
+      $('h1').style.color = '#27ae60';
+      resultPage.querySelector('.result-icon').textContent = '🌕';
+      resultPage.querySelector('.result-title').textContent = '感谢您的参与！';
+      resultPage.querySelector('.result-desc').innerHTML = '您的心声对我们非常重要<br>祝您中秋快乐，阖家幸福！';
+      resultPage.classList.remove('error');
+    } else {
+      $('h1').textContent = '提交异常';
+      $('h1').style.color = '#e74c3c';
+      resultPage.querySelector('.result-icon').textContent = '⚠️';
+      resultPage.querySelector('.result-title').textContent = '网络可能有问题';
+      resultPage.querySelector('.result-desc').innerHTML = '问卷数据已记录在页面中<br>如需重试请刷新页面重新提交';
+      resultPage.classList.add('error');
+    }
 
     // 进度条满
     $('#progressFill').style.width = '100%';
-    $('#progressText').textContent = '已完成 · 感谢参与';
+    $('#progressText').textContent = success ? '已完成 · 感谢参与' : '提交未完成';
   }
 
   // 初始化
   updateProgress();
+  // 页面就绪后移除加载遮罩（解决扫码时白屏/网页不存在的问题）
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      var loading = document.getElementById('pageLoading');
+      if (loading) {
+        loading.classList.add('fade-out');
+        setTimeout(function() { loading.style.display = 'none'; }, 300);
+      }
+    }, 200);
+  });
+  // 兜底：即使load事件已触发也确保遮罩消失
+  if (document.readyState === 'complete') {
+    var loading2 = document.getElementById('pageLoading');
+    if (loading2) {
+      loading2.classList.add('fade-out');
+      setTimeout(function() { loading2.style.display = 'none'; }, 300);
+    }
+  }
 })();
 </script>
 </body>
