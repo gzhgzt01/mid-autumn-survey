@@ -591,4 +591,21 @@
   }
 
   function showResult() {
-    $$('.question').forEach(q =
+    $$('.question').forEach(q => q.style.display = 'none');
+    $('#btnRow').style.display = 'none';
+    $('#resultPage').classList.add('active');
+    $('.subtitle').style.display = 'none';
+    $('h1').textContent = '提交成功！';
+    $('h1').style.color = '#27ae60';
+
+    // 进度条满
+    $('#progressFill').style.width = '100%';
+    $('#progressText').textContent = '已完成 · 感谢参与';
+  }
+
+  // 初始化
+  updateProgress();
+})();
+</script>
+</body>
+</html>
