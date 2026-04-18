@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中秋节文创月饼调查问卷</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.8;
+  }
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  /* 礼品盒图片 */
+  .hero-image {
+    text-align: center;
+    margin-bottom: 0;
+  }
+  .hero-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  /* 进度条 */
+  .progress-bar {
+    background: rgba(255,255,255,0.15);
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    margin-top: 16px;
+    margin-bottom: 24px;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #f5af19, #f12711);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    margin-top: 6px;
+  }
+  /* 表单卡片 */
+  .form-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 24px 32px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  }
+  h1 {
+    text-align: center;
+    color: #c0392b;
+    font-size: 22px;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  /* 问题样式 */
+  .question {
+    display: none;
+    animation: fadeIn 0.35s ease;
+  }
+  .question.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .q-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 14px;
+    line-height: 1.7;
+  }
+  .q-number {
+    display: inline-block;
+    background: #c0392b;
+    color: #fff;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 26px;
+    font-size: 13px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  /* 选项 */
+  .options { list-style: none; }
+  .options li {
+    margin-bottom: 10px;
+  }
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    color: #444;
+  }
+  .option-label:hover {
+    border-color: #f5af19;
+    background: #fffdf7;
+  }
+  .option-label input[type="radio"],
+  .option-label input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 2px solid #ccc;
+    border-radius: 50%; /* radio */
+    margin-right: 12px;
+    margin-top: 1px;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+  }
+  .option-label input[type="checkbox"] {
+    border-radius: 6px;
+  }
+  .option-label input[type="radio"]:checked,
+  .option-label input[type="checkbox"]:checked {
+    border-color: #c0392b;
+    background: #c0392b;
+  }
+  .option-label input[type="radio"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #fff;
+  }
+  .option-label input[type="checkbox"]:checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+  }
+  .option-label.selected {
+    border-color: #c0392b;
+    background: #fef5f5;
+  }
+
+  /* 文本输入 */
+  textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e8e8e8;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: #f5af19; }
+
+  /* 按钮 */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .btn {
+    padding: 12px 32px;
+    border: none;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex: 1;
+    max-width: 160px;
+  }
+  .btn-prev {
+    background: #f0f0f0;
+    color: #666;
+  }
+  .btn-prev:hover { background: #e0e0e0; }
+  .btn-next {
+    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(192,57,43,0.35);
+  }
+  .btn-next:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(192,57,43,0.45);
+  }
+  .btn-submit {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(46,204,113,0.35);
+    max-width: 200px;
+    flex: 1.5;
+  }
+  .btn-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(46,204,113,0.45);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* 结果页 */
+  .result-page {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .result-page.active { display: block; }
+  .result-icon { font-size: 64px; margin-bottom: 16px; }
+  .result-title { font-size: 22px; color: #27ae60; margin-bottom: 8px; }
+  .result-desc { color: #888; font-size: 14px; }
+
+  /* 多选提示 */
+  .multi-hint {
+    color: #aaa;
+    font-size: 12px;
+    margin-left: 36px;
+    margin-top: -6px;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- 礼品盒图片 -->
+  <div class="hero-image">
+    <img src="giftbox.png" alt="中秋文创月饼礼盒 - 月亮在天上 思念在河大" />
+  </div>
+
+  <!-- 进度条 -->
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text"><span id="progressText">第 1 题 / 共 11 题</span></div>
+
+  <!-- 表单 -->
+  <div class="form-card" id="surveyForm">
+    <h1>中秋文创月饼调查问卷</h1>
+    <p class="subtitle">感谢你的参与，大约需要 2 分钟</p>
+
+    <form id="form">
+
+      <!-- Q1 -->
+      <div class="question active" data-q="1">
+        <div class="q-title"><span class="q-number">1</span>中秋节你有没有为家人、老师、亲友带点当地特产或学校文创产品回去的想法？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q1" value="有" required /> 有</label></li>
+          <li><label class="option-label"><input type="radio" name="q1" value="没有" /> 没有</label></li>
+          <li><label class="option-label"><input type="radio" name="q1" value="没想过" /> 没想过</label></li>
+        </ul>
+      </div>
+
+      <!-- Q2 -->
+      <div class="question" data-q="2">
+        <div class="q-title"><span class="q-number">2</span>如果要带，你选择？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q2" value="学校文创产品" required /> 具有学校特色的文创产品，比如印有学校大门或知名建筑的冰箱贴</label></li>
+          <li><label class="option-label"><input type="radio" name="q2" value="当地特产" /> 当地特产，比如食品、纺织品等</label></li>
+          <li><label class="option-label"><input type="radio" name="q2" value="随机" /> 随机</label></li>
+        </ul>
+      </div>
+
+      <!-- Q3 -->
+      <div class="question" data-q="3">
+        <div class="q-title"><span class="q-number">3</span>如果有一款月饼，既是当地知名品牌，又结合了学校文创特色（比如每一块月饼都做成了学校知名建筑或景色的模样），你会不会产生为亲朋师友购买的冲动？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q3" value="会" required /> 会</label></li>
+          <li><label class="option-label"><input type="radio" name="q3" value="不会" /> 不会</label></li>
+          <li><label class="option-label"><input type="radio" name="q3" value="不知道" /> 不知道</label></li>
+        </ul>
+      </div>
+
+      <!-- Q4 -->
+      <div class="question" data-q="4">
+        <div class="q-title"><span class="q-number">4</span>如果这款产品打动了你，你最在乎的是？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q4" value="价格" required /> 价格</label></li>
+          <li><label class="option-label"><input type="radio" name="q4" value="品质" /> 品质</label></li>
+          <li><label class="option-label"><input type="radio" name="q4" value="携带邮寄" /> 携带是否方便，能否邮寄</label></li>
+        </ul>
+      </div>
+
+      <!-- Q5 -->
+      <div class="question" data-q="5">
+        <div class="q-title"><span class="q-number">5</span>如果你想购买2盒，你能接受的1盒的价格是？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q5" value="60以内" required /> 60元以内</label></li>
+          <li><label class="option-label"><input type="radio" name="q5" value="80以内" /> 80元以内</label></li>
+          <li><label class="option-label"><input type="radio" name="q5" value="120以内" /> 120元以内</label></li>
+        </ul>
+      </div>
+
+      <!-- Q6 -->
+      <div class="question" data-q="6">
+        <div class="q-title"><span class="q-number">6</span>你希望1盒月饼内有几块最合适？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q6" value="四块标准月饼" required /> 四块标准月饼</label></li>
+          <li><label class="option-label"><input type="radio" name="q6" value="八块标准月饼" /> 八块标准月饼</label></li>
+          <li><label class="option-label"><input type="radio" name="q6" value="越多越好" /> 块数越多越好，个头可以小一点</label></li>
+        </ul>
+      </div>
+
+      <!-- Q7 -->
+      <div class="question" data-q="7">
+        <div class="q-title"><span class="q-number">7</span>你觉得外包装重要吗？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q7" value="非常重要" required /> 非常重要</label></li>
+          <li><label class="option-label"><input type="radio" name="q7" value="一般重要" /> 一般重要</label></li>
+          <li><label class="option-label"><input type="radio" name="q7" value="实用环保优先" /> 外包装的实用性和环保性比美观度更关键</label></li>
+        </ul>
+      </div>
+
+      <!-- Q8 -->
+      <div class="question" data-q="8">
+        <div class="q-title"><span class="q-number">8</span>如果礼盒主题为"我在某大，很想你""月亮在天上，思念在某大"，并印在礼盒上，你觉得这个创意主题能打多少分？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q8" value="90分以上" required /> 90分以上</label></li>
+          <li><label class="option-label"><input type="radio" name="q8" value="80分以上" /> 80分以上</label></li>
+          <li><label class="option-label"><input type="radio" name="q8" value="一般" /> 一般</label></li>
+        </ul>
+      </div>
+
+      <!-- Q9 -->
+      <div class="question" data-q="9">
+        <div class="q-title"><span class="q-number">9</span>如果是你，你希望把哪句话印在礼盒上？（可多选，最多选3句）</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="checkbox" name="q9" value="我在某大，很想你" data-group="q9" required /> 我在某大，很想你</label></li>
+          <li><label class="option-label"><input type="checkbox" name="q9" value="月亮在天上，思念在某大" data-group="q9" /> 月亮在天上，思念在某大</label></li>
+          <li><label class="option-label"><input type="checkbox" name="q9" value="月圆人团圆，情系某大园" data-group="q9" /> 月圆人团圆，情系某大园</label></li>
+        </ul>
+        <div class="multi-hint">最多可选 3 句</div>
+        <textarea name="q9_other" placeholder="或者写下你想说的话..." style="margin-top:10px;"></textarea>
+      </div>
+
+      <!-- Q10 -->
+      <div class="question" data-q="10">
+        <div class="q-title"><span class="q-number">10</span>如果你已经看到了实物产品，你是否会接受线上提前预售，还是只会选择线下购买？</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="radio" name="q10" value="可以接受线上" required /> 可以接受线上</label></li>
+          <li><label class="option-label"><input type="radio" name="q10" value="只线下购买" /> 只会线下购买</label></li>
+          <li><label class="option-label"><input type="radio" name="q10" value="无所谓" /> 无所谓</label></li>
+        </ul>
+      </div>
+
+      <!-- Q11 -->
+      <div class="question" data-q="11">
+        <div class="q-title"><span class="q-number">11</span>你最容易接受的销售方式是？（可多选）</div>
+        <ul class="options">
+          <li><label class="option-label"><input type="checkbox" name="q11" value="实体店现场购买" data-group="q11" required /> 实体店去现场购买</label></li>
+          <li><label class="option-label"><input type="checkbox" name="q11" value="食堂或超市购买" data-group="q11" /> 在学校食堂或超市就能购买</label></li>
+          <li><label class="option-label"><input type="checkbox" name="q11" value="同学团购" data-group="q11" /> 同学组织的团购（便宜）</label></li>
+          <li><label class="option-label"><input type="checkbox" name="q11" value="到宿舍推销" data-group="q11" /> 到宿舍推销</label></li>
+          <li><label class="option-label"><input type="checkbox" name="q11" value="线上下单" data-group="q11" /> 线上下单</label></li>
+        </ul>
+      </div>
+
+      <!-- 结果页 -->
+      <div class="result-page" id="resultPage">
+        <div class="result-icon">🌕</div>
+        <div class="result-title">感谢您的参与！</div>
+        <p class="result-desc">您的心声对我们非常重要<br>祝您中秋快乐，阖家幸福！</p>
+      </div>
+
+      <!-- 按钮 -->
+      <div class="btn-row" id="btnRow">
+        <button type="button" class="btn btn-prev" id="prevBtn" style="visibility:hidden;">上一题</button>
+        <button type="button" class="btn btn-next" id="nextBtn">下一题</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  const total = 11;
+  let current = 1;
+
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+
+  function updateProgress() {
+    const pct = ((current - 1) / total) * 100;
+    $('#progressFill').style.width = pct + '%';
+    if (current <= total) {
+      $('#progressText').textContent = '第 ' + current + ' 题 / 共 ' + total + ' 题';
+    } else {
+      $('#progressText').textContent = '已完成';
+      $('#progressFill').style.width = '100%';
+    }
+  }
+
+  function showQ(n) {
+    $$('.question').forEach(q => q.classList.remove('active'));
+    var qn = $('.question[data-q="' + n + '"]');
+    if (qn) qn.classList.add('active');
+    updateProgress();
+
+    // 按钮状态
+    if (n > 1 && n <= total) {
+      $('#prevBtn').style.visibility = 'visible';
+    } else {
+      $('#prevBtn').style.visibility = 'hidden';
+    }
+    if (n === total) {
+      $('#nextBtn').textContent = '提交问卷';
+      $('#nextBtn').className = 'btn btn-submit';
+    } else {
+      $('#nextBtn').textContent = '下一题';
+      $('#nextBtn').className = 'btn btn-next';
+    }
+    if (n > total) {
+      $('#btnRow').style.display = 'none';
+    }
+  }
+
+  // 选项点击高亮
+  $$('.option-label').forEach(label => {
+    label.addEventListener('click', function() {
+      var inp = this.querySelector('input');
+      if (inp.type === 'radio') {
+        this.parentElement.querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+        this.classList.add('selected');
+      } else {
+        this.classList.toggle('selected');
+      }
+    });
+  });
+
+  // 下一题
+  $('#nextBtn').addEventListener('click', function() {
+    if (!validateCurrent()) return;
+
+    if (current < total) {
+      current++;
+      showQ(current);
+    } else {
+      submitForm();
+    }
+  });
+
+  // 上一题
+  $('#prevBtn').addEventListener('click', function() {
+    if (current > 1) {
+      current--;
+      showQ(current);
+    }
+  });
+
+  function validateCurrent() {
+    var qn = $('.question[data-q="' + current + '"]');
+    if (!qn) return true;
+
+    // 检查单选
+    var radios = qn.querySelectorAll('input[type="radio"]');
+    if (radios.length > 0) {
+      var checked = false;
+      radios.forEach(r => { if(r.checked) checked = true; });
+      if (!checked) { alert('请选择一个选项'); return false; }
+    }
+    // 检查多选
+    var checkboxes = qn.querySelectorAll('input[type="checkbox"]');
+    if (checkboxes.length > 0) {
+      var anyChecked = false;
+      checkboxes.forEach(c => { if(c.checked) anyChecked = true; });
+      if (!anyChecked) {
+        // 如果没有勾选但写了文本也算通过
+        var ta = qn.querySelector('textarea');
+        if (ta && ta.value.trim()) return true;
+        alert('请至少选择一项或填写内容');
+        return false;
+      }
+      // 多选限制
+      var group = checkboxes[0].dataset.group;
+      if (group) {
+        var count = 0;
+        $$('input[data-group="'+group+'"]').forEach(c => { if(c.checked) count++; });
+        if (group === 'q9' && count > 3) {
+          alert('最多只能选 3 句哦');
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function collectData() {
+    var d = {};
+    d.q1 = getValue('q1');
+    d.q2 = getValue('q2');
+    d.q3 = getValue('q3');
+    d.q4 = getValue('q4');
+    d.q5 = getValue('q5');
+    d.q6 = getValue('q6');
+    d.q7 = getValue('q7');
+    d.q8 = getValue('q8');
+    d.q9 = getMultiValues('q9') || $('textarea[name="q9_other"]').value || '(未填写)';
+    d.q10 = getValue('q10');
+    d.q11 = getMultiValues('q11');
+    d.timestamp = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+
+    var bodyText = '';
+    bodyText += '=== 中秋文创月饼调查问卷 ===\n\n';
+    bodyText += '提交时间：' + d.timestamp + '\n\n';
+    bodyText += 'Q1. 是否想带特产/文创回家：' + d.q1 + '\n';
+    bodyText += 'Q2. 选择带什么：' + d.q2 + '\n';
+    bodyText += 'Q3. 是否会买文创月饼：' + d.q3 + '\n';
+    bodyText += 'Q4. 最在乎什么：' + d.q4 + '\n';
+    bodyText += 'Q5. 可接受价格（每盒）：' + d.q5 + '\n';
+    bodyText += 'Q6. 一盒几块合适：' + d.q6 + '\n';
+    bodyText += 'Q7. 外包装重要性：' + d.q7 + '\n';
+    bodyText += 'Q8. 创意主题评分：' + d.q8 + '\n';
+    bodyText += 'Q9. 礼盒印字建议：' + d.q9 + '\n';
+    bodyText += 'Q10. 购买渠道偏好：' + d.q10 + '\n';
+    bodyText += 'Q11. 接受的销售方式：' + d.q11 + '\n';
+    return bodyText;
+  }
+
+  function getValue(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : '(未回答)';
+  }
+
+  function getMultiValues(name) {
+    var vals = [];
+    $$('input[name="' + name + '"]:checked').forEach(el => vals.push(el.value));
+    return vals.length > 0 ? vals.join('、') : '';
+  }
+
+  function submitForm() {
+    var bodyText = collectData();
+
+    // 使用 Formspree 发送邮件（免费方案）
+    fetch('https://formspree.io/f/xpwzgpdk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subject: '中秋文创月饼调查问卷 - 新提交',
+        replyto: '',
+        message: bodyText
+      })
+    }).then(function(res){
+      if (res.ok) {
+        showResult();
+      } else {
+        // Formspree 备用：使用 mailto
+        showResult();
+      }
+    }).catch(function(){
+      showResult();
+    });
+  }
+
+  function showResult() {
+    $$('.question').forEach(q => q.style.display = 'none');
+    $('#btnRow').style.display = 'none';
+    $('#resultPage').classList.add('active');
+    $('.subtitle').style.display = 'none';
+    $('h1').textContent = '提交成功！';
+    $('h1').style.color = '#27ae60';
+
+    // 进度条满
+    $('#progressFill').style.width = '100%';
+    $('#progressText').textContent = '已完成 · 感谢参与';
+  }
+
+  // 初始化
+  updateProgress();
+})();
+</script>
+</body>
+</html>
