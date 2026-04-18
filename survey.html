@@ -562,11 +562,13 @@
 
   function submitForm() {
     var bodyText = collectData();
+    var now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
 
     // 使用 EmailJS 发送邮件（免费、稳定、长期可用）
+    // 变量名必须与 EmailJS 模板中的 {{变量名}} 完全对应
     emailjs.send('service_8tszegk', 'template_f5uyoj2', {
-      subject: '中秋文创月饼调查问卷 - 新提交',
-      message: bodyText
+      submit_time: now,
+      html_content: bodyText.replace(/\n/g, '<br>')
     }).then(function() {
       showResult();
     }).catch(function(err) {
@@ -585,13 +587,4 @@
     $('h1').style.color = '#27ae60';
 
     // 进度条满
-    $('#progressFill').style.width = '100%';
-    $('#progressText').textContent = '已完成 · 感谢参与';
-  }
-
-  // 初始化
-  updateProgress();
-})();
-</script>
-</body>
-</html>
+    $('#progressFill').s
