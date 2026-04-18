@@ -341,9 +341,9 @@
 </style>
 </head>
 <body>
-<!-- 背景音乐：中秋氛围（舒缓古风纯音乐） -->
+<!-- 背景音乐：中秋氛围（使用公开可用的免费音源） -->
 <audio id="bgm" loop preload="auto">
-  <source src="https://music.163.com/song/media/outer/url?id=33506511.mp3" type="audio/mpeg">
+  <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_1728fbf07a.mp3" type="audio/mpeg">
 </audio>
 <!-- 音乐控制按钮 -->
 <button id="musicBtn" class="music-btn" title="开启/关闭音乐">🎵</button>
@@ -787,26 +787,39 @@
   // 初始化
   updateProgress();
 
-  // 背景音乐控制（手机需用户交互才能播放）
+  // 背景音乐控制
   var bgm = document.getElementById('bgm');
   var musicBtn = document.getElementById('musicBtn');
   var isPlaying = false;
 
+  // 更新按钮UI状态
+  function updateMusicUI(playing) {
+    if (playing) {
+      musicBtn.textContent = '🎵';
+      musicBtn.classList.add('playing');
+    } else {
+      musicBtn.textContent = '🔇';
+      musicBtn.classList.remove('playing');
+    }
+  }
+
+  // 切换播放/暂停
   function toggleMusic() {
     if (isPlaying) {
       bgm.pause();
-      musicBtn.textContent = '🔇';
-      musicBtn.classList.remove('playing');
+      isPlaying = false;
+      updateMusicUI(false);
     } else {
-      bgm.play().then(function() {
-        musicBtn.textContent = '🎵';
-        musicBtn.classList.add('playing');
-      }).catch(function(e) {
-        // 浏览器阻止自动播放时静默处理
-        console.log('BGM play blocked:', e);
-      });
+      var playPromise = bgm.play();
+      if (playPromise !== undefined) {
+        playPromise.then(function() {
+          isPlaying = true;
+          updateMusicUI(true);
+        }).catch(function(e) {
+          console.log('BGM play failed:', e);
+        });
+      }
     }
-    isPlaying = !isPlaying;
   }
 
   musicBtn.addEventListener('click', function(e) {
@@ -814,19 +827,12 @@
     toggleMusic();
   });
 
-  // 首次点击页面任意位置尝试播放（解决手机自动播放限制）
-  var bgmStarted = false;
-  document.addEventListener('click', function startBGMOnce() {
-    if (!bgmStarted && !isPlaying) {
-      bgm.play().then(function() {
-        isPlaying = true;
-        musicBtn.textContent = '🎵';
-        musicBtn.classList.add('playing');
-      }).catch(function() {});
-      bgmStarted = true;
+  // 监听音频真实播放/暂停事件（同步外部因素导致的暂停）
+  bgm.addEventListener('pause', function() {
+    if (isPlaying) {
+      isPlaying = false;
+      updateMusicUI(false);
     }
-  }, { once: true });
-})();
-</script>
-</body>
-</html>
+  });
+
+  // 首
