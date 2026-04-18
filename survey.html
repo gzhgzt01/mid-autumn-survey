@@ -199,7 +199,7 @@
     cursor: pointer;
     transition: all 0.25s ease;
     flex: 1;
-    max-width: 160px;
+    white-space: nowrap;
   }
   .btn-prev {
     background: #f0f0f0;
@@ -219,7 +219,6 @@
     background: linear-gradient(135deg, #27ae60, #2ecc71);
     color: #fff;
     box-shadow: 0 4px 15px rgba(46,204,113,0.35);
-    max-width: 200px;
     flex: 1.5;
   }
   .btn-submit:hover {
@@ -561,7 +560,7 @@
     var bodyText = collectData();
 
     // 使用 Formspree 发送邮件（免费方案）
-    fetch('https://formspree.io/f/xpwzgpdk', {
+    fetch('https://formspree.io/f/xkokbwpw', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
