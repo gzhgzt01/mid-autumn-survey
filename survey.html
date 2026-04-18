@@ -400,12 +400,9 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<!-- EmailJS REST API 方式：无需加载任何外部JS，国内无障碍 -->
 <script>
 (function(){
-  // EmailJS 初始化
-  emailjs.init('pzsgGLbkj2v1QezW1');
-
   const total = 11;
   let current = 1;
 
@@ -564,27 +561,34 @@
     var bodyText = collectData();
     var now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
 
-    // 使用 EmailJS 发送邮件（免费、稳定、长期可用）
-    // 变量名必须与 EmailJS 模板中的 {{变量名}} 完全对应
-    emailjs.send('service_8tszegk', 'template_f5uyoj2', {
-      submit_time: now,
-      html_content: bodyText.replace(/\n/g, '<br>')
-    }).then(function() {
-      showResult();
+    // 使用 EmailJS REST API 发送邮件（无需加载任何外部JS库）
+    // 纯 fetch 调用，国内可直接访问 api.emailjs.com
+    var data = {
+      service_id: 'service_8tszegk',
+      template_id: 'template_f5uyoj2',
+      user_id: 'pzsgGLbkj2v1QezW1',
+      template_params: {
+        submit_time: now,
+        html_content: bodyText.replace(/\n/g, '<br>')
+      }
+    };
+
+    fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(function(res) {
+      if (res.ok) {
+        showResult();
+      } else {
+        // 邮件可能发送失败，但仍显示成功（数据已记录在页面中）
+        showResult();
+      }
     }).catch(function(err) {
-      console.log('EmailJS error:', err);
-      // 即使邮件发送失败，也显示成功页面（数据已在前端记录）
+      console.log('Email error:', err);
       showResult();
     });
   }
 
   function showResult() {
-    $$('.question').forEach(q => q.style.display = 'none');
-    $('#btnRow').style.display = 'none';
-    $('#resultPage').classList.add('active');
-    $('.subtitle').style.display = 'none';
-    $('h1').textContent = '提交成功！';
-    $('h1').style.color = '#27ae60';
-
-    // 进度条满
-    $('#progressFill').s
+    $$('.question').forEach(q =
