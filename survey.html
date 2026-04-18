@@ -8,7 +8,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    background: linear-gradient(160deg, #fff8ee 0%, #ffecd2 35%, #fcb69f 100%);
     min-height: 100vh;
     color: #333;
     line-height: 1.8;
@@ -18,20 +18,51 @@
     margin: 0 auto;
     padding: 20px;
   }
-  /* 礼品盒图片 */
-  .hero-image {
+  /* 欢迎开场区（问候语 + 图片 + 说明） */
+  .welcome-section {
     text-align: center;
     margin-bottom: 0;
+    padding-top: 8px;
+  }
+  .welcome-greeting {
+    color: #c07840;
+    font-size: 15px;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+  .welcome-title {
+    color: #8b4513;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+  }
+  .welcome-desc {
+    color: #6b5344;
+    font-size: 13px;
+    line-height: 1.9;
+    max-width: 480px;
+    margin: 0 auto 18px;
+    padding: 0 10px;
+  }
+  /* 礼品盒图片 */
+  .hero-image {
+    margin-bottom: 16px;
   }
   .hero-image img {
-    max-width: 100%;
+    max-width: 260px;
     height: auto;
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+    transition: transform 0.4s ease;
+  }
+  .hero-image img:hover {
+    transform: scale(1.03);
   }
   /* 进度条 */
   .progress-bar {
-    background: rgba(255,255,255,0.15);
+    background: rgba(139,69,19,0.1);
     height: 6px;
     border-radius: 3px;
     overflow: hidden;
@@ -42,13 +73,13 @@
   .progress-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #f5af19, #f12711);
+    background: linear-gradient(90deg, #e67e22, #d35400);
     border-radius: 3px;
     transition: width 0.4s ease;
   }
   .progress-text {
     text-align: center;
-    color: rgba(255,255,255,0.7);
+    color: rgba(107,83,68,0.7);
     font-size: 13px;
     margin-top: 6px;
   }
@@ -272,13 +303,63 @@
   /* 提交失败页 */
   .result-page.error .result-icon { font-size: 64px; }
   .result-page.error .result-title { color: #e74c3c; }
+
+  /* 音乐控制按钮 */
+  .music-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(139,69,19,0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #8b4513;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  .music-btn:hover {
+    background: rgba(139,69,19,0.22);
+    transform: scale(1.1);
+  }
+  .music-btn.playing {
+    background: rgba(230,126,34,0.35);
+    animation: musicPulse 2s ease-in-out infinite;
+  }
+  @keyframes musicPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(230,126,34,0.3); }
+    50% { box-shadow: 0 0 0 8px rgba(230,126,34,0); }
+  }
 </style>
 </head>
 <body>
+<!-- 背景音乐：中秋氛围（舒缓古风纯音乐） -->
+<audio id="bgm" loop preload="auto">
+  <source src="https://music.163.com/song/media/outer/url?id=33506511.mp3" type="audio/mpeg">
+</audio>
+<!-- 音乐控制按钮 -->
+<button id="musicBtn" class="music-btn" title="开启/关闭音乐">🎵</button>
+
 <div class="container">
-  <!-- 礼品盒图片 -->
-  <div class="hero-image">
-    <img src="giftbox.png" alt="中秋文创月饼礼盒 - 月亮在天上 思念在河大" />
+  <!-- 欢迎开场区 -->
+  <div class="welcome-section">
+    <p class="welcome-greeting">—— 月亮圆了，中秋近了 ——</p>
+    <h1 class="welcome-title">中秋文创月饼调查问卷</h1>
+    <p class="welcome-desc">
+      你好！我们正在策划一款融合大学校园特色的中秋文创月饼礼盒。<br>
+      这份问卷大约需要 2 分钟，你的每一条意见都会帮助我们做出更好的产品。感谢你的参与！
+    </p>
+    <div class="hero-image">
+      <img src="giftbox.png" alt="中秋文创月饼礼盒 - 月亮在天上 思念在河大" />
+    </div>
   </div>
 
   <!-- 进度条 -->
@@ -287,9 +368,6 @@
 
   <!-- 表单 -->
   <div class="form-card" id="surveyForm">
-    <h1>中秋文创月饼调查问卷</h1>
-    <p class="subtitle">感谢你的参与，大约需要 2 分钟</p>
-
     <form id="form">
 
       <!-- Q1 -->
@@ -678,18 +756,23 @@
     $('#btnRow').style.display = 'none';
     var resultPage = $('#resultPage');
     resultPage.classList.add('active');
-    $('.subtitle').style.display = 'none';
+
+    // 隐藏欢迎开场区的问候语和说明
+    var wg = document.querySelector('.welcome-greeting');
+    if (wg) wg.style.display = 'none';
+    var wd = document.querySelector('.welcome-desc');
+    if (wd) wd.style.display = 'none';
 
     if (success) {
-      $('h1').textContent = '提交成功！';
-      $('h1').style.color = '#27ae60';
+      var wt = document.querySelector('.welcome-title');
+      if (wt) { wt.textContent = '提交成功！'; wt.style.color = '#27ae60'; }
       resultPage.querySelector('.result-icon').textContent = '🌕';
       resultPage.querySelector('.result-title').textContent = '感谢您的参与！';
       resultPage.querySelector('.result-desc').innerHTML = '您的心声对我们非常重要<br>祝您中秋快乐，阖家幸福！';
       resultPage.classList.remove('error');
     } else {
-      $('h1').textContent = '提交异常';
-      $('h1').style.color = '#e74c3c';
+      var wt2 = document.querySelector('.welcome-title');
+      if (wt2) { wt2.textContent = '提交异常'; wt2.style.color = '#e74c3c'; }
       resultPage.querySelector('.result-icon').textContent = '⚠️';
       resultPage.querySelector('.result-title').textContent = '网络可能有问题';
       resultPage.querySelector('.result-desc').innerHTML = '问卷数据已记录在页面中<br>如需重试请刷新页面重新提交';
@@ -703,6 +786,46 @@
 
   // 初始化
   updateProgress();
+
+  // 背景音乐控制（手机需用户交互才能播放）
+  var bgm = document.getElementById('bgm');
+  var musicBtn = document.getElementById('musicBtn');
+  var isPlaying = false;
+
+  function toggleMusic() {
+    if (isPlaying) {
+      bgm.pause();
+      musicBtn.textContent = '🔇';
+      musicBtn.classList.remove('playing');
+    } else {
+      bgm.play().then(function() {
+        musicBtn.textContent = '🎵';
+        musicBtn.classList.add('playing');
+      }).catch(function(e) {
+        // 浏览器阻止自动播放时静默处理
+        console.log('BGM play blocked:', e);
+      });
+    }
+    isPlaying = !isPlaying;
+  }
+
+  musicBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleMusic();
+  });
+
+  // 首次点击页面任意位置尝试播放（解决手机自动播放限制）
+  var bgmStarted = false;
+  document.addEventListener('click', function startBGMOnce() {
+    if (!bgmStarted && !isPlaying) {
+      bgm.play().then(function() {
+        isPlaying = true;
+        musicBtn.textContent = '🎵';
+        musicBtn.classList.add('playing');
+      }).catch(function() {});
+      bgmStarted = true;
+    }
+  }, { once: true });
 })();
 </script>
 </body>
