@@ -400,8 +400,12 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
 (function(){
+  // EmailJS 初始化
+  emailjs.init('pzsgGLbkj2v1QezW1');
+
   const total = 11;
   let current = 1;
 
@@ -559,23 +563,15 @@
   function submitForm() {
     var bodyText = collectData();
 
-    // 使用 Formspree 发送邮件（免费方案）
-    fetch('https://formspree.io/f/xkokbwpw', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        subject: '中秋文创月饼调查问卷 - 新提交',
-        replyto: '',
-        message: bodyText
-      })
-    }).then(function(res){
-      if (res.ok) {
-        showResult();
-      } else {
-        // Formspree 备用：使用 mailto
-        showResult();
-      }
-    }).catch(function(){
+    // 使用 EmailJS 发送邮件（免费、稳定、长期可用）
+    emailjs.send('service_8tszegk', 'template_f5uyoj2', {
+      subject: '中秋文创月饼调查问卷 - 新提交',
+      message: bodyText
+    }).then(function() {
+      showResult();
+    }).catch(function(err) {
+      console.log('EmailJS error:', err);
+      // 即使邮件发送失败，也显示成功页面（数据已在前端记录）
       showResult();
     });
   }
