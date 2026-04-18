@@ -304,47 +304,9 @@
   .result-page.error .result-icon { font-size: 64px; }
   .result-page.error .result-title { color: #e74c3c; }
 
-  /* 音乐控制按钮 */
-  .music-btn {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(139,69,19,0.12);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #8b4513;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-  }
-  .music-btn:hover {
-    background: rgba(139,69,19,0.22);
-    transform: scale(1.1);
-  }
-  .music-btn.playing {
-    background: rgba(230,126,34,0.35);
-    animation: musicPulse 2s ease-in-out infinite;
-  }
-  @keyframes musicPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(230,126,34,0.3); }
-    50% { box-shadow: 0 0 0 8px rgba(230,126,34,0); }
-  }
 </style>
 </head>
 <body>
-<!-- 背景音乐：使用Web Audio API内生成，无需外部音源 -->
-<!-- 音乐控制按钮 -->
-<button id="musicBtn" class="music-btn" title="开启/关闭音乐">🎵</button>
-
 <div class="container">
   <!-- 欢迎开场区 -->
   <div class="welcome-section">
@@ -783,54 +745,7 @@
 
   // 初始化
   updateProgress();
-
-  // 背景音乐控制（Web Audio API 内生成，不依赖外部文件）
-  var musicBtn = document.getElementById('musicBtn');
-  var isPlaying = false;
-  var audioCtx = null;
-  var bgmNodes = {};
-
-  // 更新按钮UI状态
-  function updateMusicUI(playing) {
-    if (playing) {
-      musicBtn.textContent = '🎵';
-      musicBtn.classList.add('playing');
-    } else {
-      musicBtn.textContent = '🔇';
-      musicBtn.classList.remove('playing');
-    }
-  }
-
-  // 创建柔和的背景环境音（使用 Web Audio API 合成）
-  function createBGM() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    var ctx = audioCtx;
-
-    // 主振荡器：低频正弦波，营造温暖氛围
-    var osc1 = ctx.createOscillator();
-    osc1.type = 'sine';
-    osc1.frequency.value = 130.81; // C3
-
-    // 和声振荡器
-    var osc2 = ctx.createOscillator();
-    osc2.type = 'sine';
-    osc2.frequency.value = 196.00; // G3
-
-    // 高频装饰
-    var osc3 = ctx.createOscillator();
-    osc3.type = 'triangle';
-    osc3.frequency.value = 261.63; // C4
-
-    // 增益控制
-    var gain1 = ctx.createGain();
-    gain1.gain.value = 0;
-
-    var gain2 = ctx.createGain();
-    gain2.gain.value = 0;
-
-    var gain3 = ctx.createGain();
-    gain3.gain.value = 0;
-
-    // 主音量
-    var masterGain = ctx.createGain();
-    masterGain.ga
+})();
+</script>
+</body>
+</html>
